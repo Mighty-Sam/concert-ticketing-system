@@ -1,0 +1,11 @@
+# quarkus port and root settings
+quarkus:
+  http:
+    port: 6060
+    test-port: 6061
+    cors:
+      ~: true
+      origins: "*"
+      methods: GET,POST,PATCH,PUT,DELETE
+      headers: accept,origin,authorization,content-type,x-requested-with
+      exposed-headers: Content-Type,Authorization
