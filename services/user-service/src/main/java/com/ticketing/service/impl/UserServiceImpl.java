@@ -3,6 +3,7 @@ package com.ticketing.service.impl;
 import com.ticketing.common.exception.CustomException;
 import com.ticketing.common.response.CustomCode;
 import com.ticketing.service.UserService;
+import com.ticketing.dto.UserCreateDto;
 import com.ticketing.mapper.UserMapper;
 import com.ticketing.utils.JwtIssuer;
 import com.ticketing.entity.User;
@@ -25,8 +26,8 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
 
     @Override
-    public Uni<UserDto> register(UserDto userDto) {
-        return isRegistered(userDto.getEmail())
+    public Uni<UserDto> register(UserCreateDto userCreateDto) {
+        return isRegistered(userCreateDto.getEmail())
                 .flatMap(isExisted -> {
                     if (isExisted) {
                         return Uni.createFrom().failure(new CustomException(
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
                         ));
                     }
 
-                    return User.create(userDto)
+                    return User.create(userCreateDto)
                             .flatMap(newUser -> newUser.persist()
                                     .replaceWith(userMapper.toDto(newUser))
                             );
@@ -49,9 +50,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Uni<String> login(UserDto userDto) {
-        String email = userDto.getEmail();
-        String password = userDto.getPassword();
+    public Uni<String> login(UserCreateDto userCreateDto) {
+        String email = userCreateDto.getEmail();
+        String password = userCreateDto.getPassword();
 
         return User.findByEmail(email)
                 .flatMap(existingUser -> {

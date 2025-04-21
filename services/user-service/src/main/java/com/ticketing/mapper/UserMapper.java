@@ -8,10 +8,10 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "cdi")
 public interface UserMapper {
 
-    @Mapping(target = "id",source = "userId")
+    @Mapping(target = "id",source = "id")
     User toEntity(UserDto userDto);
 
-    @Mapping(target = "userId", source = "id")
+    @Mapping(target = "id", source = "id")
     UserDto toDto(User user);
 
 }

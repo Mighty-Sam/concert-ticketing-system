@@ -26,7 +26,7 @@ public class JwtIssuer {
                 .subject(user.getEmail())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plus(EXPIRATION))
-                .claim("userId", user.id)
+                .claim("userId", user.getId())
                 .groups(user.getRoles())
                 .sign();
 

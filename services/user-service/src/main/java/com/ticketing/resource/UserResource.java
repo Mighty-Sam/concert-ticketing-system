@@ -3,6 +3,7 @@ package com.ticketing.resource;
 import com.ticketing.common.response.ApiResponse;
 import com.ticketing.service.impl.RedisService;
 import com.ticketing.service.UserService;
+import com.ticketing.dto.UserCreateDto;
 import com.ticketing.dto.UserDto;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
@@ -36,15 +37,15 @@ public class UserResource {
 
     @POST
     @Path("/register")
-    public Uni<ApiResponse<UserDto>> register(UserDto userDto) {
-        return userService.register(userDto)
+    public Uni<ApiResponse<UserDto>> register(UserCreateDto userCreateDto) {
+        return userService.register(userCreateDto)
                 .map(ApiResponse::success);
     }
 
     @POST
     @Path("/login")
-    public Uni<ApiResponse<String>> login(UserDto userDto) {
-        return userService.login(userDto)
+    public Uni<ApiResponse<String>> login(UserCreateDto userCreateDto) {
+        return userService.login(userCreateDto)
                 .map(ApiResponse::success);
     }
 
@@ -76,6 +77,5 @@ public class UserResource {
         return userService.findByName(name.trim())
                 .map(ApiResponse::success);
     }
-
 
 }

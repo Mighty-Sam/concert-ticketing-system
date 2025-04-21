@@ -1,67 +1,66 @@
 package com.ticketing.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ticketing.dto.UserDto;
-import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
-import io.quarkus.mongodb.panache.common.MongoEntity;
-import io.smallrye.mutiny.Uni;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j ;
-import lombok.AllArgsConstructor;
+import com.ticketing.dto.UserCreateDto;
+import lombok.extern.slf4j.Slf4j;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.Data;
-import org.bson.codecs.pojo.annotations.BsonProperty;
-import org.mindrot.jbcrypt.BCrypt;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
+import io.smallrye.mutiny.Uni;
+import org.mindrot.jbcrypt.BCrypt;
+import jakarta.persistence.*;
 
-@MongoEntity(collection = "user")
 @EqualsAndHashCode(callSuper = true)
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Accessors(chain = true)
 @Slf4j
-public class User extends ReactivePanacheMongoEntity {
+@Entity
+@Table(name = "users")
+public class User extends PanacheEntityBase {
 
-    @BsonProperty("email")
-    public String email;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-    @BsonProperty("password")
-    public String password;
+    @Column(nullable = false)
+    private String name;
 
-    @BsonProperty("name")
-    public String name;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    @BsonProperty("roles")
+    @Column(nullable = false)
+    private String password;
+
     private Set<String> roles;
 
-    @BsonProperty("createdAt")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    public LocalDateTime createdAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now(ZoneOffset.UTC);
 
-    public static Uni<User> findByEmail(String email){
+    public static Uni<User> findByEmail(String email) {
         return find("email", email)
+                .project(User.class)
                 .firstResult();
     }
 
     public static Uni<User> findByName(String name){
         return find("name", name)
+                .project(User.class)
                 .firstResult();
     }
 
-    public static Uni<User> create(UserDto userDto) {
+    public static Uni<User> create(UserCreateDto userCreateDto) {
         User user = new User();
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt()));
+        user.setName(userCreateDto.getName());
+        user.setEmail(userCreateDto.getEmail());
+        user.setPassword(BCrypt.hashpw(userCreateDto.getPassword(), BCrypt.gensalt()));
         user.setRoles(Set.of("USER"));
         user.setCreatedAt(LocalDateTime.now(ZoneOffset.UTC));
 
         log.info("newUser: {}", user);
         return Uni.createFrom().item(user);
     }
-
 }
