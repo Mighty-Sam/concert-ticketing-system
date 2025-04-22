@@ -10,6 +10,10 @@
     <packaging>pom</packaging>
     <modules>
         <module>services/user-service</module>
+        <module>services/event-service</module>
+        <module>services/order-service</module>
+        <module>services/payment-service</module>
+        <module>services/notification-service</module>
         <!-- 其他 modules -->
     </modules>
 
