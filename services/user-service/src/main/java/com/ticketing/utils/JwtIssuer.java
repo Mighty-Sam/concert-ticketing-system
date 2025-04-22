@@ -1,8 +1,8 @@
 package com.ticketing.utils;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Duration;
 import java.time.Instant;
+import jakarta.enterprise.context.ApplicationScoped;
 import com.ticketing.entity.User;
 import io.smallrye.jwt.build.Jwt;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class JwtIssuer {
                 .subject(user.getEmail())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plus(EXPIRATION))
-                .claim("userId", user.getId())
+                .claim("userId", user.id)
                 .groups(user.getRoles())
                 .sign();
 

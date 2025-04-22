@@ -4,6 +4,7 @@ import com.ticketing.common.response.ApiResponse;
 import com.ticketing.service.impl.RedisService;
 import com.ticketing.service.UserService;
 import com.ticketing.dto.UserCreateDto;
+import com.ticketing.dto.UserLoginDto;
 import com.ticketing.dto.UserDto;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import lombok.extern.slf4j.Slf4j;
@@ -37,15 +39,15 @@ public class UserResource {
 
     @POST
     @Path("/register")
-    public Uni<ApiResponse<UserDto>> register(UserCreateDto userCreateDto) {
+    public Uni<ApiResponse<UserDto>> register(@Valid UserCreateDto userCreateDto) {
         return userService.register(userCreateDto)
                 .map(ApiResponse::success);
     }
 
     @POST
     @Path("/login")
-    public Uni<ApiResponse<String>> login(UserCreateDto userCreateDto) {
-        return userService.login(userCreateDto)
+    public Uni<ApiResponse<String>> login(@Valid UserLoginDto userLoginDto) {
+        return userService.login(userLoginDto)
                 .map(ApiResponse::success);
     }
 
@@ -73,7 +75,7 @@ public class UserResource {
     @GET
     @Path("/{name}")
     @RolesAllowed("USER")
-    public Uni<ApiResponse<UserDto>> findByName(String name) {
+    public Uni<ApiResponse<UserDto>> findByName(@PathParam("name") String name) {
         return userService.findByName(name.trim())
                 .map(ApiResponse::success);
     }

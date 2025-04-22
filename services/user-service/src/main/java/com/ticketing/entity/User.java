@@ -1,5 +1,7 @@
 package com.ticketing.entity;
 
+import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import io.smallrye.mutiny.Uni;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ticketing.dto.UserCreateDto;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +10,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
-import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
-import io.smallrye.mutiny.Uni;
 import org.mindrot.jbcrypt.BCrypt;
 import jakarta.persistence.*;
 
@@ -18,12 +18,7 @@ import jakarta.persistence.*;
 @Slf4j
 @Entity
 @Table(name = "users")
-public class User extends PanacheEntityBase {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+public class User extends PanacheEntity {
 
     @Column(nullable = false)
     private String name;
@@ -34,6 +29,9 @@ public class User extends PanacheEntityBase {
     @Column(nullable = false)
     private String password;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
     private Set<String> roles;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -42,13 +40,11 @@ public class User extends PanacheEntityBase {
 
     public static Uni<User> findByEmail(String email) {
         return find("email", email)
-                .project(User.class)
                 .firstResult();
     }
 
     public static Uni<User> findByName(String name){
         return find("name", name)
-                .project(User.class)
                 .firstResult();
     }
 
@@ -60,7 +56,6 @@ public class User extends PanacheEntityBase {
         user.setRoles(Set.of("USER"));
         user.setCreatedAt(LocalDateTime.now(ZoneOffset.UTC));
 
-        log.info("newUser: {}", user);
         return Uni.createFrom().item(user);
     }
 }

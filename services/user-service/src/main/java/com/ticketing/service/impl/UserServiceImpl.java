@@ -5,14 +5,17 @@ import com.ticketing.common.response.CustomCode;
 import com.ticketing.service.UserService;
 import com.ticketing.dto.UserCreateDto;
 import com.ticketing.mapper.UserMapper;
+import com.ticketing.dto.UserLoginDto;
 import com.ticketing.utils.JwtIssuer;
 import com.ticketing.entity.User;
 import com.ticketing.dto.UserDto;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.mindrot.jbcrypt.BCrypt;
 import lombok.extern.slf4j.Slf4j;
-import io.smallrye.mutiny.Uni;
 import java.util.Optional;
 
 @Slf4j
@@ -25,6 +28,7 @@ public class UserServiceImpl implements UserService {
     @Inject
     UserMapper userMapper;
 
+    @WithTransaction
     @Override
     public Uni<UserDto> register(UserCreateDto userCreateDto) {
         return isRegistered(userCreateDto.getEmail())
@@ -49,10 +53,11 @@ public class UserServiceImpl implements UserService {
                 .map(user -> Optional.ofNullable(user).isPresent());
     }
 
+    @WithSession
     @Override
-    public Uni<String> login(UserCreateDto userCreateDto) {
-        String email = userCreateDto.getEmail();
-        String password = userCreateDto.getPassword();
+    public Uni<String> login(UserLoginDto userLoginDto) {
+        String email = userLoginDto.getEmail();
+        String password = userLoginDto.getPassword();
 
         return User.findByEmail(email)
                 .flatMap(existingUser -> {
@@ -82,6 +87,7 @@ public class UserServiceImpl implements UserService {
         return (existingUser == null || !BCrypt.checkpw(password, existingUser.getPassword()));
     }
 
+    @WithSession
     @Override
     public Uni<UserDto> findByName(String name) {
         return User.findByName(name)
