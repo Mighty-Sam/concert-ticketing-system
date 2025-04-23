@@ -32,6 +32,20 @@ services:
     volumes:
       - mongo-data:/data/db
 
+  rabbitmq:
+    image: rabbitmq:3.8-management
+    container_name: ticketing-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: 1234
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
 volumes:
   mysql-data:
   mongo-data:
+  rabbitmq-data:
