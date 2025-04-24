@@ -1,24 +1,22 @@
 package com.ticketing.entity;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
+import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.extern.slf4j.Slf4j;
 import lombok.EqualsAndHashCode;
 import lombok.Data;
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import java.time.LocalDateTime;
+import java.util.List;
 import com.ticketing.enums.EventStatus;
-import jakarta.persistence.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
-@Entity
-@Table(name = "events")
-public class Event extends PanacheEntity {
+@MongoEntity(collection = "events")
+public class Event extends ReactivePanacheMongoEntity {
 
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
     private String location;
@@ -27,26 +25,12 @@ public class Event extends PanacheEntity {
 
     private LocalDateTime endTime;
 
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING)
     private EventStatus status;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TicketType> ticketTypes;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
 
 }

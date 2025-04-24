@@ -1,12 +1,13 @@
 package com.ticketing.entity;
 
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
+import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.extern.slf4j.Slf4j;
 import lombok.EqualsAndHashCode;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 //避免超賣（Overselling）票券。
 //限制每個使用者搶票頻率。
@@ -15,11 +16,12 @@ import jakarta.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
-@Entity
-@Table(name = "ticket_types")
-public class TicketType extends PanacheEntity {
+@MongoEntity(collection = "ticket_type")
+public class TicketType extends ReactivePanacheMongoEntity {
 
     private String name;
+
+    private Event event;
 
     private BigDecimal price;
 
@@ -27,23 +29,10 @@ public class TicketType extends PanacheEntity {
 
     private Integer remaining;
 
-    @Column(updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id")
-    private Event event;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 
 }
